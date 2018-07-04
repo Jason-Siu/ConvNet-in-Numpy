@@ -1,5 +1,6 @@
 import numpy as np
 
+# method that performs the convolution operation
 def conv2d(input, filter, stride = 1, padding = 0):
     # input is the volume you perform convolution operation on
     # filter is the kernel to use to convolution
@@ -32,7 +33,7 @@ def conv2d(input, filter, stride = 1, padding = 0):
 def findMaxValue(num1, num2, num3, num4):
     return np.array([num1, num2, num3, num4]).max()
 
-
+# max pooling method
 def maxpool(input, filtersize = 2,stride = 2):
     # input is the volume to perform maxpooling
     # filter size is the width or heigh - this filter will always be a square matrix
@@ -59,8 +60,7 @@ def maxpool(input, filtersize = 2,stride = 2):
     
     return output_layer
 
-# used to connect to fully connected layers
-# i think this reshape method is compatible but not 100%
+# used to connect from 3D input to fully connected layers
 def flatten(input):
     return input.reshape(input.shape[0] * input.shape[1] * input.shape[2], 1)
 
@@ -99,6 +99,7 @@ def convert_to_2d_image(arr):
     # this is to make the image have a depth of 1
     return np.array([image])
 
+# error that passes from the fully connected layers to the convolutional layers
 def error_to_conv(vector):
     tensor = np.zeros((20,4,4))
     index = 0
@@ -109,15 +110,19 @@ def error_to_conv(vector):
                 index += 1
     return tensor
 
+# cross entropy function
 def cross_entropy(output, y_target):
     return - np.sum(np.log(output) * (y_target))
 
+# calculates cross entropy loss
 def cost(output, y_target):
     return np.mean(cross_entropy(output, y_target))
 
+# returns index of max value
 def indexMaxValue(num1, num2, num3, num4):
     return np.array([num1, num2, num3, num4]).argmax()
-        
+
+# this method passes the gradients from a pooled layer
 def delta_pool(error, matrix, stride = 2):
     output = np.zeros((matrix.shape[0], matrix.shape[1], matrix.shape[2]))
     for d in range(error.shape[0]):
@@ -138,7 +143,7 @@ def delta_pool(error, matrix, stride = 2):
                 
     return output
 
-
+# this method computes how much the filter should change by
 def delta_filters(error, input_prev, weight_width, numfilters):
     delta_filter = np.zeros((numfilters, input_prev.shape[0], weight_width, weight_width))
     depth = input_prev.shape[0]
@@ -153,7 +158,7 @@ def delta_filters(error, input_prev, weight_width, numfilters):
     
     return delta_filter
 
-# assume this works
+# this method passes the layer to the previous convolution layer
 def error_conv_layer(error, weight, output_width):
     output = np.zeros((weight.shape[1], output_width, output_width))
     numfilters = weight.shape[0]
