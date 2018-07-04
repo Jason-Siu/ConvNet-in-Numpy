@@ -60,7 +60,7 @@ Also by intuition, we should expect these filters to detect more abstract featur
 
 ![](imagesCONV/graph.png)
 
-This graph only shows the change in the first training set, which is why you only see maximum epoch of 10 bevause I had decided to run each training set 10 times before moving onto the next.
+This graph only shows the change in the first training set, which is why you only see maximum epoch of 10 because I had decided to run each training set 10 times before moving onto the next.
 
 Just as a side note, this model was trained over many instances, rather than just the first 1000 samples. It was also training from the second, third, fourth, and fifth 1000 samples, passing each training set 10 times before moving onto the next training set. What you see here is just the first 1000.
 
