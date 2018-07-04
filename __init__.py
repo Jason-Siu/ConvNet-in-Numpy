@@ -1,5 +1,4 @@
 # building convolutional neural network from scratch using only numpy
-
 import layer
 import numpy as np
 from sklearn.datasets import fetch_mldata
@@ -9,11 +8,7 @@ import pickle
 # useful for debugging
 np.random.seed(1)
 
-# initializing our 2 kernels / filters
-# multiply by 2 because I wanted greater variance in random distribution
-# 10 is the number of separate filters
-# 1 is the depth
-# 5x5 is the dimensions of the kernel
+# load out filters we saved on pickle
 f1 = open("filter1.pickle", "rb")
 f2 = open("filter2.pickle", "rb")
 s0 = open("syn0.pickle", "rb")
@@ -21,13 +16,10 @@ s1 = open("syn1.pickle", "rb")
 b0 = open("bias0.pickle", "rb")
 b1 = open("bias1.pickle", "rb")
 
+# load hyper parameters
 filter1 = pickle.load(f1)
-# 20 filters, each 5x5
-# deoth of 10
 filter2 = pickle.load(f2)
 
-# adjust shape of weights for fully connected so that 
-# it passes the values to the next layer properly
 syn0 = pickle.load(s0)
 syn1 = pickle.load(s1)
 
@@ -37,22 +29,29 @@ bias1 = pickle.load(b1)
 # load MNIST dataset
 mnist = fetch_mldata("MNIST original")
 
+# learning rates for weights and bias
 rate_syn = .0001
 rate_bias = .0001
 
+# data set
 xarr = mnist.data
 yarr = mnist.target
 
+# shuffle arrays
 xarr, yarr = shuffle_arrays_unison(arrays=[xarr, yarr], random_seed=4)
-xarr = xarr[500:1000]
-yarr = yarr[500:1000]
+# only ujse first 1000 samples for training
+xarr = xarr[:1000]
+yarr = yarr[:1000]
 
+# graphing variables
 xbar = []
 ybar = []
 correct = 0
+loss = 0
 
-for epoch in range(2):
-    for image in range(500):
+# training loop
+for epoch in range(10):
+    for image in range(1000):
     # convolution operation with max pooling
         input = layer.convert_to_2d_image(xarr[image])
         conv0 = layer.conv2d(input, filter1)
@@ -70,12 +69,10 @@ for epoch in range(2):
         # define target matrix
         target = np.zeros([10,1])
         target[int(yarr[image])][0] = 1
-        loss = layer.cost(l2, target)
-        ybar.append(loss)
-        xbar.append(image + epoch * 500)
+        # calculate cost
+        loss += np.abs(layer.cost(l2, target))
         print(str(loss) + " " + str(int(yarr[image])) + " " + str(np.argmax(l2)) +  " " + str(image))
-        if int(yarr[image]) == np.argmax(l2):
-            correct += 1
+        
         # backprop fully connected
         syn1_delta = np.outer((l2 - target), l1.T) 
         bias1_delta = (l2 - target)
@@ -87,24 +84,46 @@ for epoch in range(2):
         syn1 -= rate_syn * syn1_delta
         bias0 -= rate_bias * bias0_delta
         bias1 -= rate_bias * bias1_delta
-        #backprop convolutions
+        # backprop convolutions from fully connected layer
         error_conv = np.dot(syn0.T, error_hidden)
         error_conv = layer.error_to_conv(error_conv)
-        # not sure where to apply relu deriv
+        # compute change in filters
         error_max1 = layer.delta_pool(error_conv, relu1) * layer.RELU(conv1, True)
         delta_filter2 = layer.delta_filters(error_max1, max0, 5, 20)
         error_conv0 = layer.error_conv_layer(error_max1, filter2, 12)
         error_max0 = layer.delta_pool(error_conv0, relu0) * layer.RELU(conv0, True)
         delta_filter0 = layer.delta_filters(error_max0, input, 5, 10)
         
+        # adjust filters
         filter1 -= .0001 * delta_filter0
         filter2 -= .0001 * delta_filter2
-        
-    print("Correct after epoch: " + str(correct))
-    correct = 0
+    # adds average loss to graph
+    ybar.append(loss / 1000)
+    xbar.append(epoch)
+
+# test network wih 150 samples randomly assigned
+for i in range(150):
+    # only forward propogate
+    index = np.random.randint(0, 70000)
+    input = layer.convert_to_2d_image(xarr[index])
+    conv0 = layer.conv2d(input, filter1)
+    relu0 = layer.RELU(conv0)
+    max0 = layer.maxpool(relu0)
+    conv1 = layer.conv2d(max0, filter2)
+    relu1 = layer.RELU(conv1)
+    max1 = layer.maxpool(relu1)
+    l0 = layer.flatten(max1)
+    z = layer.forward_connected(l0, syn0, bias0)
+    l1 = layer.RELU(z)
+    l2 = layer.forward_connected(l1, syn1, bias1)
+    l2 = layer.softmax(l2)
+    if np.argmax(l2) == yarr[index]:
+        correct += 1
+
+        # prints number of correct out of testing samples
+print(correct)
    
-
-
+# save parameters after training
 f1 = open("filter1.pickle", "wb")
 pickle.dump(filter1, f1)
 f1.close()
@@ -129,6 +148,7 @@ b1 = open("bias1.pickle", "wb")
 pickle.dump(bias1, b1)
 b1.close()
 
+# show graph of progression of network
 plt.plot(xbar, ybar, '-')
 plt.xlabel('Epoch')
 plt.ylabel('Cost')
