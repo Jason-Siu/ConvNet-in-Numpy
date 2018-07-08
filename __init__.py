@@ -99,6 +99,8 @@ for epoch in range(10):
         # adjust filters
         filter1 -= .0001 * delta_filter0
         filter2 -= .0001 * delta_filter2
+        # reset loss value
+        loss = 0
     # adds average loss to graph
     ybar.append(loss / 1000)
     xbar.append(epoch)
