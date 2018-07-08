@@ -62,8 +62,10 @@ for epoch in range(10):
         max1 = layer.maxpool(relu1)
         # fully connected
         l0 = layer.flatten(max1)
+        l0 = layer.dropout(l0, .5)
         z = layer.forward_connected(l0, syn0, bias0)
         l1 = layer.RELU(z)
+        l1 = layer.dropout(l1, .5)
         l2 = layer.forward_connected(l1, syn1, bias1)
         l2 = layer.softmax(l2)
         # define target matrix
