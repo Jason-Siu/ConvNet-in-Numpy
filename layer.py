@@ -173,7 +173,11 @@ def error_conv_layer(error, weight, output_width):
                             output[d][row + r][col + c] += error[f][row][col] * weight[f][d][r][c]
     
     return output
-        
+
+def dropout(a, prob):
+    shape = a.shape[0]
+    vec = np.random.choice([0,1], size = (shape,1), p = [prob, 1-prob])
+    return vec * a
     
     
     
