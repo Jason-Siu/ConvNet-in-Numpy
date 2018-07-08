@@ -12,7 +12,7 @@ Initialization was using np.random.randn(), and to prevent initial explosive gra
 
 ![](imagesCONV/architecture.png)
 
-I did not include dropout in this model, so ignore that part, and we have an exact model of my ConvNet.
+This is picture depicting the model is the exact same as mine, only that I put dropout on the first two fully connected layers, instead of just the flattened layer.
 
 
 **Here is an example of what the input image (with dimention 10, since there are 10 filters for the first convolutional layer) might look like after the first convolution**
