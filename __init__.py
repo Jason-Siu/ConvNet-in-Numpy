@@ -39,7 +39,7 @@ yarr = mnist.target
 
 # shuffle arrays
 xarr, yarr = shuffle_arrays_unison(arrays=[xarr, yarr], random_seed=4)
-# only ujse first 1000 samples for training
+# only use first 1000 samples for training
 xarr = xarr[:1000]
 yarr = yarr[:1000]
 
@@ -73,7 +73,8 @@ for epoch in range(10):
         target[int(yarr[image])][0] = 1
         # calculate cost
         loss += np.abs(layer.cost(l2, target))
-        print(str(loss) + " " + str(int(yarr[image])) + " " + str(np.argmax(l2)) +  " " + str(image))
+#         print(str(loss) + " " + str(int(yarr[image])) + " " + str(np.argmax(l2)) +  " " + str(image))
+        print(f'{loss} {int(yarr[image]} {np.argmax(l2)} {image}')
         
         # backprop fully connected
         syn1_delta = np.outer((l2 - target), l1.T) 
@@ -124,33 +125,27 @@ for i in range(150):
     if np.argmax(l2) == yarr[index]:
         correct += 1
 
-        # prints number of correct out of testing samples
+# prints number of correct out of testing samples
 print(correct)
    
 # save parameters after training
-f1 = open("filter1.pickle", "wb")
-pickle.dump(filter1, f1)
-f1.close()
+with open("filter1.pickle", "wb") as f1:
+    pickle.dump(filter1, f1)
 
-f2 = open("filter2.pickle", "wb")
-pickle.dump(filter2, f2)
-f2.close()
+with open("filter2.pickle", "wb") as f2:
+    pickle.dump(filter2, f2)
 
-s0 = open("syn0.pickle", "wb")
-pickle.dump(syn0, s0)
-s0.close()
+with open("syn0.pickle", "wb") as s0:
+    pickle.dump(syn0, s0)
 
-s1 = open("syn1.pickle", "wb")
-pickle.dump(syn1, s1)
-s1.close()
+with open("syn1.pickle", "wb") as s1:
+    pickle.dump(syn1, s1)
 
-b0 = open("bias0.pickle", "wb")
-pickle.dump(bias0, b0)
-b0.close()
+with open("bias0.pickle", "wb") as b0:
+    pickle.dump(bias0, b0)
 
-b1 = open("bias1.pickle", "wb")
-pickle.dump(bias1, b1)
-b1.close()
+with open("bias1.pickle", "wb") as b1:
+    pickle.dump(bias1, b1)
 
 # show graph of progression of network
 plt.plot(xbar, ybar, '-')
